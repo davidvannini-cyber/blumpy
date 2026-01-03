@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blumpy - Piano Operativo Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #F5C89B 0%, #8B7355 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 2px solid #F5C89B;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .day-selector {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .day-selector select {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #F5C89B;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .day-selector select:hover {
+            border-color: #8B7355;
+            background: #FFF5E6;
+        }
+        
+        .day-selector select:focus {
+            outline: none;
+            border-color: #8B7355;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+        
+        .day-section.hidden {
+            display: none;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #F5C89B;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #8B7355;
+        }
+        
+        .btn-danger {
+            background: #FF6B6B;
+            color: white;
+        }
+        
+        .progress-bar {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 2px solid #F5C89B;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .progress-label {
+            font-weight: bold;
+            color: #8B7355;
+            white-space: nowrap;
+        }
+        
+        .progress {
+            flex-grow: 1;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .day-section {
+            margin: 30px;
+            border: 3px solid #F5C89B;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .day-header {
+            background: #F5C89B;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .day-header h2 {
+            font-size: 28px;
+            margin: 0;
+        }
+        
+        .session {
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .session-header {
+            background: #FFF5E6;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .session-header h3 {
+            color: #8B7355;
+            font-size: 22px;
+        }
+        
+        .task {
+            padding: 20px 30px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 20px;
+            transition: background 0.3s;
+        }
+        
+        .task:hover {
+            background: #fafafa;
+        }
+        
+        .task.completed {
+            background: #e8f5e9;
+        }
+        
+        .task-checkbox {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border: 3px solid #F5C89B;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-checkbox:hover {
+            background: #FFF5E6;
+            transform: scale(1.1);
+        }
+        
+        .task-checkbox.checked {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .task-content {
+            flex-grow: 1;
+        }
+        
+        .task-title {
+            font-weight: bold;
+            color: #2C2C2C;
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+        
+        .task-duration {
+            display: inline-block;
+            background: #E3F2FD;
+            color: #2196F3;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .task-steps {
+            margin-top: 12px;
+            padding-left: 20px;
+        }
+        
+        .task-steps li {
+            color: #555;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .task-code {
+            background: #2C2C2C;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .task-warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .task-success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .task-tip {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .checkpoint {
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            color: white;
+            padding: 20px 30px;
+            margin: 20px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .summary-box {
+            background: #FFF5E6;
+            border: 2px solid #F5C89B;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 30px;
+        }
+        
+        .summary-box h3 {
+            color: #8B7355;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #F5C89B;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media print {
+            .controls, .progress-bar {
+                display: none;
+            }
+            
+            .day-section {
+                page-break-after: always;
+            }
+            
+            .task-checkbox {
+                border: 2px solid #ccc;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .task {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .day-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .day-selector {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🚀 BLUMPY - PIANO OPERATIVO COMPLETO</h1>
+        <p>Setup 3 Giorni Full-Time + Piano Settimanale Operativo</p>
+        <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Budget €30/giorno | Mercato Italia | Dropshipping → Semi-Stock</p>
+    </div>
+
+    <div class="controls">
+        <div class="day-selector">
+            <select id="daySelector" onchange="switchDay(this.value)">
+                <option value="all">📋 Mostra Tutto</option>
+                <option value="day1" selected>📅 Giorno 1 - Fondamenta Tecniche</option>
+                <option value="day2">📅 Giorno 2 - Marketing Infrastructure</option>
+                <option value="day3">📅 Giorno 3 - Lancio & Email Automation</option>
+                <option value="week1">📅 Giorni 4-7 - Prima Settimana Operativa</option>
+                <option value="weekly-routine">📅 Piano Settimanale Ricorrente</option>
+                <option value="milestones">🎯 Milestones & Azioni Trigger</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Piano</button>
+        <button class="btn btn-secondary" onclick="saveProgress()">💾 Salva Progresso</button>
+        <button class="btn btn-secondary" onclick="loadProgress()">📂 Carica Progresso</button>
+        <button class="btn btn-danger" onclick="resetProgress()">🔄 Reset Tutto</button>
+        <button class="btn btn-secondary" onclick="exportProgress()">📊 Esporta Dati</button>
+    </div>
+
+    <div class="progress-bar">
+        <span class="progress-label">Progresso Totale:</span>
+        <div class="progress">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+        <span id="taskCounter">0/0 task</span>
+    </div>
+
+    <div class="summary-box">
+        <h3>📊 Riepilogo Piano Completo</h3>
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalDays">6</div>
+                <div class="stat-label">Giorni Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalHours">30+</div>
+                <div class="stat-label">Ore di Lavoro</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Task Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completati</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIORNO 1 -->
+    <div class="day-section" id="day1">
+        <div class="day-header">
+            <h2>📅 GIORNO 1 - FONDAMENTA TECNICHE</h2>
+            <div class="duration">⏱️ 8 ore | Sabato/Domenica</div>
+        </div>
+        
+        <!-- MATTINA GIORNO 1 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>🌅 MATTINA (9:00-13:00)</h3>
+                <span class="session-time">4 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 1.1 -->
+                <div class="task" data-task-id="1.1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.1 - Registrazione Shopify + Dominio
+                            <span class="task-duration">⏱️ 45 min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li>Vai su <strong>shopify.it</strong></li>
+                            <li>Click "Inizia la prova gratuita" (14 giorni gratis)</li>
+                            <li>Email business: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7910171f16391b150c14090057100d">[email&#160;protected]</a></li>
+                            <li>Nome negozio: <strong>blumpy</strong></li>
+                            <li>Acquista dominio: blumpy.it (€11-14/anno) - Shopify → Impostazioni → Domini</li>
+                            <li>Completa info: Paese Italia, Valuta EUR, Fuso Roma, Indirizzo P.IVA</li>
+                            <li>Verifica email</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Account attivo, dominio collegato</div>
+                    </div>
+                </div>
+                
+                <!-- Task 1.2 -->
+                <div class="task" data-task-id="1.2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.2 - Installazione Tema Dawn + Personalizzazione
+                            <span class="task-duration">⏱️ 1h 15min</span>
+                        </div>
+                        <strong>A) Installazione (15min)</strong>
+                        <ol class="task-steps">
+                            <li>Negozio online → Temi → Visita libreria</li>
+                            <li>Filtra: Gratuiti → Trova <strong>DAWN</strong></li>
+                            <li>Aggiungi → Pubblica</li>
+                        </ol>
+                        <strong>B) Personalizzazione (1h)</strong>
+                        <div class="task-code">COLORI BRAND:
+• Primario: #F5C89B (beige)
+• Secondario: #8B7355 (marrone)
+• Testo: #2C2C2C
+• Accent: #FFB6C1 (rosa)
+
+FONT:
+• Headings: Poppins Bold
+• Body: Poppins Regular
+
+HOMEPAGE:
+• Hero: "Illumina i Tuoi Sogni ✨"
+• Button: "Scopri la Collezione"
+• Sezioni: Featured Collection, Multicolumn (benefici), Footer</div>
+                        <div class="task-success">✅ CHECKPOINT: Tema configurato con brand identity</div>
+                    </div>
+                </div>
+
+                <!-- Task 1.3 -->
+                <div class="task" data-task-id="1.3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.3 - Pagine Legali OBBLIGATORIE
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-warning">⚠️ CRITICO: Obbligatorio per GDPR - multe fino €20M se assenti!</div>
+                        <ol class="task-steps">
+                            <li>Impostazioni → Legale</li>
+                            <li><strong>Termini e Condizioni:</strong> Template + aggiungi tempi consegna 10-15gg</li>
+                            <li><strong>Privacy Policy:</strong> Template + aggiungi Facebook Pixel disclosure</li>
+                            <li><strong>Rimborsi:</strong> "30 giorni soddisfatti o rimborsati"</li>
+                            <li><strong>Spedizione:</strong> "Gratis >€49, altrimenti €4.90"</li>
+                            <li>Aggiungi link Footer → tutte e 4 le pagine</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 4 pagine legali complete e conformi</div>
+                    </div>
+                </div>
+
+                <!-- Task 1.4 -->
+                <div class="task" data-task-id="1.4">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.4 - Configurazione Pagamenti
+                            <span class="task-duration">⏱️ 45 min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Shopify Payments:</strong> Attiva → Inserisci P.IVA, IBAN, documento ID</li>
+                            <li><strong>PayPal Business:</strong> Collega account (se non hai: crea su paypal.com/bizsignup)</li>
+                            <li><strong>Scalapay:</strong> Installa app → Compila dati (approvazione 24-48h)</li>
+                            <li>Test: simula acquisto con carta test</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Minimo 2 metodi pagamento attivi</div>
+                    </div>
+                </div>
+                
+                <div class="checkpoint">
+                    ✅ PAUSA PRANZO (13:00-14:00) - 1 ora<br>
+                    Mattina completata: Setup tecnico base ✓
+                </div>
+            </div>
+        </div>
+        
+        <!-- POMERIGGIO GIORNO 1 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>☀️ POMERIGGIO (14:00-18:00)</h3>
+                <span class="session-time">4 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 1.5 -->
+                <div class="task" data-task-id="1.5">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.5 - Ricerca Fornitori + Ordine Campioni
+                            <span class="task-duration">⏱️ 2h</span>
+                        </div>
+                        <strong>A) CJ Dropshipping (45min)</strong>
+                        <ol class="task-steps">
+                            <li>Registrati: cjdropshipping.com → Account Dropshipper</li>
+                            <li>Cerca: "night light cute" → Filtra Ships from EU, Rating >4.5</li>
+                            <li>Identifica 5 prodotti: Luna, Nuvola, Gatto, Dinosauro, Anatra</li>
+                            <li>Crea Excel: Nome | ID | Prezzo | Shipping | Tempo | Link</li>
+                        </ol>
+                        <strong>B) BigBuy (15min)</strong>
+                        <ol class="task-steps">
+                            <li>Registrati: bigbuy.eu → Richiede P.IVA → Approvazione 24-48h</li>
+                        </ol>
+                        <strong>C) Ordine Campioni (30min)</strong>
+                        <ol class="task-steps">
+                            <li>Ordina 3 campioni CJ al TUO indirizzo (€25-40 totali)</li>
+                            <li>Salva tracking numbers</li>
+                        </ol>
+                        <div class="task-warning">⚠️ NON saltare! Devi testare qualità prima di vendere</div>
+                        <div class="task-success">✅ CHECKPOINT: 2 fornitori registrati, 3 campioni ordinati</div>
+                    </div>
+                </div>
+                
+                <!-- Task 1.6 -->
+                <div class="task" data-task-id="1.6">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.6 - Caricamento 5 Prodotti su Shopify
+                            <span class="task-duration">⏱️ 1h 30min</span>
+                        </div>
+                        <strong>A) Crea Collezione (5min)</strong>
+                        <ol class="task-steps">
+                            <li>Prodotti → Collezioni → Crea</li>
+                            <li>Nome: "Tutte le Lampade" → Automatica → Condizione: Prezzo >€0</li>
+                        </ol>
+                        <strong>B) Prodotto 1 - Lampada Luna (25min)</strong>
+                        <div class="task-code">TEMPLATE DESCRIZIONE:
+✨ TRASFORMA LA CAMERA IN UN'OASI DI SERENITÀ
+[Descrizione emozionale]
+🌙 PERCHÉ AMARLA:
+💤 Luce soffusa | 🔋 10h autonomia | 🎨 Design 3D
+📏 SPECIFICHE: Diametro 15cm, LED, USB, PLA
+🛡️ GARANZIA: 30gg soddisfatti o rimborsati
+
+PREZZI:
+• Vendita: €39.90
+• Confronta a: €49.90 (-20%)
+• Costo: €9.50 (nascosto)
+• SKU: BLMP-LUNA-01</div>
+                        <ol class="task-steps">
+                            <li>Scarica 6-8 foto da fornitore</li>
+                            <li>Carica su Shopify</li>
+                            <li>Compila descrizione benefici (non spec tecniche)</li>
+                            <li>Inventario: 999, continua vendere se esaurito ✓</li>
+                        </ol>
+                        <strong>C) Replica per altri 4 prodotti (15min ciascuno)</strong>
+                        <ol class="task-steps">
+                            <li>Lampada Nuvola</li>
+                            <li>Lampada Gatto</li>
+                            <li>Lampada Dinosauro</li>
+                            <li>Lampada Anatra/Coniglio</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 5 prodotti live sul sito</div>
+                    </div>
+                </div>
+                
+                <!-- Task 1.7 -->
+                <div class="task" data-task-id="1.7">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.7 - Installazione App Essenziali
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Loox</strong> (recensioni): Installa → Import 10 recensioni demo</li>
+                            <li><strong>Sales Pop</strong> (FOMO): Installa → Config ogni 60 sec</li>
+                            <li><strong>Klaviyo</strong> (email): Installa → NON configurare ora (domani)</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 3 app installate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SERA GIORNO 1 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>🌙 SERA (19:00-20:00)</h3>
+                <span class="session-time">1 ora</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 1.8 -->
+                <div class="task" data-task-id="1.8">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            1.8 - Test Completo Sito
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-code">CHECKLIST TEST:
+□ Homepage carica <3 sec
+□ Click "Scopri Collezione" → va a prodotti ✓
+□ Click prodotto → pagina carica ✓
+□ Foto visibili, prezzo chiaro ✓
+□ "Aggiungi al carrello" funziona ✓
+□ Carrello si aggiorna ✓
+□ Checkout → form email + indirizzo ✓
+□ Test acquisto REALE €1 (carta test Shopify)
+□ Ricevi email conferma ✓
+
+MOBILE:
+□ Menu hamburger funziona ✓
+□ Foto grandi ✓
+□ Bottoni cliccabili ✓
+□ Checkout mobile fluido ✓</div>
+                        <ol class="task-steps">
+                            <li>Test da desktop Chrome</li>
+                            <li>Test da smartphone tuo</li>
+                            <li>Fix eventuali problemi trovati</li>
+                            <li>Screenshot sito finito (archivio)</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT GIORNO 1 FINALE: Sito live e funzionante, pronto per marketing</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIORNO 2 -->
+    <div class="day-section" id="day2">
+        <div class="day-header">
+            <h2>📅 GIORNO 2 - MARKETING INFRASTRUCTURE</h2>
+            <div class="duration">⏱️ 8 ore | Sabato/Domenica</div>
+        </div>
+        
+        <!-- MATTINA GIORNO 2 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>🌅 MATTINA (9:00-13:00)</h3>
+                <span class="session-time">4 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 2.1 -->
+                <div class="task" data-task-id="2.1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.1 - Facebook Business Manager Setup
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Business Manager:</strong> business.facebook.com → Crea account → Nome: Blumpy</li>
+                            <li><strong>Pagina Facebook:</strong> Crea → Nome: Blumpy → Categoria: Brand vendita al dettaglio → Bio: "Lampade decorative ✨"</li>
+                            <li><strong>Account Ads:</strong> Crea → Nome: Blumpy Ads → EUR → GMT+1 → Limite €50/gg</li>
+                            <li><strong>Pagamento:</strong> Aggiungi carta credito</li>
+                            <li><strong>Instagram:</strong> Crea @blumpy_official → Business Account → Collega a Pagina</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Business Manager completo</div>
+                    </div>
+                </div>
+                
+                <!-- Task 2.2 -->
+                <div class="task" data-task-id="2.2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.2 - Facebook Pixel Installation
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <div class="task-warning">⚠️ CRITICO: Senza Pixel non puoi tracciare vendite!</div>
+                        <ol class="task-steps">
+                            <li>Business Manager → Gestione Eventi → Pixel → Crea → Nome: Blumpy Pixel</li>
+                            <li>Shopify → Impostazioni → App → Facebook & Instagram → Installa</li>
+                            <li>Collega Business Manager</li>
+                            <li>Seleziona Pixel creato</li>
+                            <li><strong>TEST:</strong> Installa Chrome "Facebook Pixel Helper"</li>
+                            <li>Visita il tuo sito → Icona VERDE = attivo ✓</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Pixel attivo e traccia eventi</div>
+                    </div>
+                </div>
+                
+                <!-- Task 2.3 -->
+                <div class="task" data-task-id="2.3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.3 - Creazione Foto Prodotto + Editing
+                            <span class="task-duration">⏱️ 2h</span>
+                        </div>
+                        <strong>A) Download foto fornitore (30min)</strong>
+                        <ol class="task-steps">
+                            <li>Scarica da CJ/BigBuy tutte le foto HD disponibili</li>
+                            <li>Minimo 8 foto per prodotto (angolazioni diverse)</li>
+                            <li>Salva in cartella organizzata: Prodotto_Luna/01.jpg, 02.jpg...</li>
+                        </ol>
+                        <strong>B) Editing con Canva (1h 30min)</strong>
+                        <ol class="task-steps">
+                            <li>Canva.com → Template "Instagram Post" (1080x1080)</li>
+                            <li>Rimuovi sfondo prodotti (Tool Magic Eraser)</li>
+                            <li>Aggiungi sfondo lifestyle (camera bambino, comodino)</li>
+                            <li>Crea 3 varianti per prodotto: Clean/Lifestyle/Benefit</li>
+                            <li>Esporta PNG alta qualità</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 15+ foto edited pronte per ads</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- POMERIGGIO GIORNO 2 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>☀️ POMERIGGIO (14:00-18:00)</h3>
+                <span class="session-time">4 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 2.4 -->
+                <div class="task" data-task-id="2.4">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.4 - Creazione Video con CapCut (Smartphone)
+                            <span class="task-duration">⏱️ 2h</span>
+                        </div>
+                        <div class="task-code">VIDEO 1 - UNBOXING (30 sec):
+• Mani che aprono scatola
+• Estrae lampada
+• Accende per prima volta
+• Zoom su dettagli
+• Testo: "La magia che aspettavi ✨"
+
+MUSICA: Lofi chill (libreria CapCut)
+TRANSIZIONI: Smooth zoom
+TESTO: Bold, color matching brand (#F5C89B)</div>
+                        <ol class="task-steps">
+                            <li>Installa CapCut su smartphone</li>
+                            <li>Registra 3 video diversi (Unboxing, Lifestyle, Features)</li>
+                            <li>Edit in CapCut: Tagli, musica, testo</li>
+                            <li>Esporta 1080x1920 (Stories) + 1080x1080 (Feed)</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 6+ video pronti (3 prodotti x 2 formati)</div>
+                    </div>
+                </div>
+                
+                <!-- Task 2.5 -->
+                <div class="task" data-task-id="2.5">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.5 - Scrittura Copy Ads (15 Varianti)
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-code">TEMPLATE HOOK:
+1. "Smetti di spendere €100 in lampade noiose"
+2. "Il segreto per far addormentare tuo figlio in 5 minuti?"
+3. "Questa lampada ha 4.8★ su 12.000 recensioni"
+
+BODY:
+"La nostra Lampada Luna crea l'atmosfera perfetta per..."
+
+CTA:
+"→ Ordina ora (Ultimi pezzi!)"
+"→ Spedizione GRATIS oggi"</div>
+                        <ol class="task-steps">
+                            <li>Scrivi 5 varianti "Problema-Soluzione"</li>
+                            <li>Scrivi 5 varianti "Beneficio diretto"</li>
+                            <li>Scrivi 5 varianti "Urgency/Scarcity"</li>
+                            <li>Salva in Google Doc per test A/B</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: 15 copy ads pronti</div>
+                    </div>
+                </div>
+                
+                <!-- Task 2.6 -->
+                <div class="task" data-task-id="2.6">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.6 - Prima Campagna Facebook Ads
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-warning">⚠️ NON lanciare ancora! Solo setup, lanci domani dopo review</div>
+                        <div class="task-code">STRUTTURA CAMPAGNA:
+
+CAMPAGNA: "Blumpy - Lancio Test"
+• Obiettivo: Conversioni (Acquisto)
+• Budget: €15/giorno
+• CBO (Campaign Budget Optimization) ✓
+
+AD SET 1: "Mamme 25-45 - Italia"
+• Età: 25-45 anni
+• Genere: Donne
+• Interessi: Maternità, Design casa, Bambini
+• Località: Italia
+
+AD SET 2: "Design Lovers 30-50"
+• Età: 30-50
+• Interessi: Interior design, Home decor
+• Località: Italia
+
+CREATIVITÀ (3 per ad set):
+• Foto 1 + Copy A
+• Video 1 + Copy B
+• Carousel + Copy C</div>
+                        <ol class="task-steps">
+                            <li>Ads Manager → Crea campagna → Conversioni</li>
+                            <li>Setup 2 Ad Set (targeting diverso)</li>
+                            <li>Carica 3 creatività per ad set</li>
+                            <li><strong>SALVA BOZZA</strong> (non pubblicare)</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Campagna pronta (DRAFT), non ancora live</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SERA GIORNO 2 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>🌙 SERA (19:00-20:00)</h3>
+                <span class="session-time">1 ora</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 2.7 -->
+                <div class="task" data-task-id="2.7">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            2.7 - Review Finale + Checklist Pre-Launch
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-code">CHECKLIST FINALE:
+
+SITO:
+□ 5 prodotti live ✓
+□ Prezzi chiari ✓
+□ Foto HD ✓
+□ Descrizioni complete ✓
+□ Pagamenti funzionanti ✓
+□ Pagine legali ✓
+□ Mobile-friendly ✓
+
+MARKETING:
+□ Facebook Pixel attivo ✓
+□ Campagna ads setup (draft) ✓
+□ 15+ foto/video pronti ✓
+□ Copy ads scritti ✓
+□ Instagram pronto ✓
+
+FORNITORI:
+□ Campioni ordinati ✓
+□ Excel fornitori completo ✓
+□ Account CJ + BigBuy attivi ✓</div>
+                        <ol class="task-steps">
+                            <li>Controlla ogni punto della checklist</li>
+                            <li>Fix eventuali problemi trovati</li>
+                            <li>Screenshot dashboard completo</li>
+                            <li>Backup sito (Shopify → Impostazioni → Export)</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT GIORNO 2 FINALE: Tutto pronto per lancio domani!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIORNO 3 -->
+    <div class="day-section" id="day3">
+        <div class="day-header">
+            <h2>📅 GIORNO 3 - LANCIO & EMAIL AUTOMATION</h2>
+            <div class="duration">⏱️ 6 ore | Sabato/Domenica</div>
+        </div>
+        
+        <!-- MATTINA GIORNO 3 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>🌅 MATTINA (9:00-13:00)</h3>
+                <span class="session-time">4 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 3.1 -->
+                <div class="task" data-task-id="3.1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.1 - Setup Klaviyo Email Automation
+                            <span class="task-duration">⏱️ 2h</span>
+                        </div>
+                        <strong>A) Configurazione Base (30min)</strong>
+                        <ol class="task-steps">
+                            <li>Klaviyo → Collega Shopify</li>
+                            <li>Importa lista clienti esistenti (se hai)</li>
+                            <li>Crea Signup Form popup: "10% sul primo ordine"</li>
+                            <li>Test popup su sito</li>
+                        </ol>
+                        <strong>B) Flow Carrello Abbandonato (1h)</strong>
+                        <div class="task-code">EMAIL 1 (1 ora dopo): "Hai dimenticato qualcosa?"
+EMAIL 2 (24 ore): "Ultimi pezzi! -10% per te"
+EMAIL 3 (48 ore): "Ultima chance - scade oggi!"</div>
+                        <ol class="task-steps">
+                            <li>Crea Flow "Abandoned Cart"</li>
+                            <li>Scrivi 3 email con template Klaviyo</li>
+                            <li>Aggiungi coupon 10% in email 2</li>
+                            <li>Test flow con email tua</li>
+                        </ol>
+                        <strong>C) Welcome Series (30min)</strong>
+                        <ol class="task-steps">
+                            <li>Email 1: "Benvenuto in Blumpy! Storia brand"</li>
+                            <li>Email 2: "I 5 prodotti più amati"</li>
+                            <li>Email 3: "Come scegliere la lampada perfetta"</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Email automation attive</div>
+                    </div>
+                </div>
+                
+                <!-- Task 3.2 -->
+                <div class="task" data-task-id="3.2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.2 - Lancio Prima Campagna Facebook Ads
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-warning">⚠️ MOMENTO DELLA VERITÀ: Stai per spendere i primi €15!</div>
+                        <ol class="task-steps">
+                            <li>Ultima review campagna draft di ieri</li>
+                            <li>Verifica Pixel attivo (Facebook Pixel Helper)</li>
+                            <li>Check budget giornaliero: €15 ✓</li>
+                            <li><strong>PUBBLICA CAMPAGNA</strong> → Conferma</li>
+                            <li>Attendi approvazione (15min - 2h)</li>
+                            <li>Screenshot conferma lancio</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Campagna LIVE!</div>
+                    </div>
+                </div>
+                
+                <!-- Task 3.3 -->
+                <div class="task" data-task-id="3.3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.3 - Post Organici Instagram/Facebook
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-code">POST 1 (Instagram): Foto Luna + "La nostra prima lampada ✨"
+POST 2 (Facebook): Video unboxing + "Guarda cosa è arrivato!"
+POST 3 (Stories): Behind-the-scenes packing
+POST 4 (Reels): Time-lapse accensione
+
+HASHTAGS: #lampadadesign #decorazionicasa #lucedanotte #arredamento #madeinitaly</div>
+                        <ol class="task-steps">
+                            <li>Programma 4 post su Meta Business Suite</li>
+                            <li>1 post/giorno per i prossimi 4 giorni</li>
+                            <li>Invita amici/famiglia a seguire pagina</li>
+                            <li>Rispondi a OGNI commento entro 1h</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Presenza social attiva</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- POMERIGGIO GIORNO 3 -->
+        <div class="session">
+            <div class="session-header">
+                <h3>☀️ POMERIGGIO (14:00-16:00)</h3>
+                <span class="session-time">2 ore</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task 3.4 -->
+                <div class="task" data-task-id="3.4">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.4 - Setup Dashboard Monitoraggio
+                            <span class="task-duration">⏱️ 1h</span>
+                        </div>
+                        <div class="task-code">GOOGLE SHEET "BLUMPY TRACKER":
+
+Tab 1 - DAILY METRICS:
+| Data | Spesa Ads | Visite | Add Cart | Vendite | Revenue | ROAS | CPA |
+
+Tab 2 - PRODOTTI:
+| Prodotto | Visualizzazioni | Aggiunti | Venduti | Conv% |
+
+Tab 3 - FORNITORI:
+| Ordine# | Cliente | Prodotto | Data | Fornitore | Tracking | Status |</div>
+                        <ol class="task-steps">
+                            <li>Crea Google Sheet da template sopra</li>
+                            <li>Collega Shopify Reports per auto-import (opzionale)</li>
+                            <li>Inserisci formule calcolo automatico ROAS/CPA</li>
+                            <li>Crea grafici Revenue/Vendite</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT: Dashboard pronto per tracking</div>
+                    </div>
+                </div>
+                
+                <!-- Task 3.5 -->
+                <div class="task" data-task-id="3.5">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.5 - Processo Ordine Test Manuale
+                            <span class="task-duration">⏱️ 30min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li>Simula ordine da cliente (usa email alternativa)</li>
+                            <li>Completa checkout → Ricevi notifica Shopify</li>
+                            <li>Login CJ Dropshipping → Trova prodotto</li>
+                            <li>Crea ordine manuale con indirizzo cliente</li>
+                            <li>Copia tracking number → Shopify → Fulfillment</li>
+                            <li>Cliente riceve email tracking</li>
+                        </ol>
+                        <div class="task-warning">Pratica questo flusso ora, perché alle 3 di notte con ordini veri sarà stressante!</div>
+                        <div class="task-success">✅ CHECKPOINT: Processo ordine testato end-to-end</div>
+                    </div>
+                </div>
+                
+                <!-- Task 3.6 -->
+                <div class="task" data-task-id="3.6">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            3.6 - Preparazione Risposta Clienti Template
+                            <span class="task-duration">⏱️ 30min</span>
+                        </div>
+                        <div class="task-code">TEMPLATE EMAIL CLIENTI:
+
+1. "Dov'è il mio ordine?"
+"Ciao [Nome], il tuo ordine #[X] è stato spedito il [data] e arriverà entro 10-15gg. Tracking: [link]. Grazie!"
+
+2. "Voglio rendere/cambiare"
+"Ciao [Nome], nessun problema! Hai 30 giorni. Segui questi step: [...]"
+
+3. "Prodotto difettoso"
+"Ciao [Nome], ci dispiace! Ti inviamo sostituzione GRATIS. Inviaci foto a <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8de4e3ebe2cdefe1f8e0fdf4a3e4f9">[email&#160;protected]</a>"
+
+4. "Domanda pre-vendita"
+"Ciao! La lampada [X] è perfetta per [beneficio]. Diametro [X]cm, autonomia [X]h. Altre domande?"</div>
+                        <ol class="task-steps">
+                            <li>Salva template in Google Doc</li>
+                            <li>Crea risposta automatica Gmail/Outlook</li>
+                            <li>Pratica copy-paste veloce</li>
+                        </ol>
+                        <div class="task-success">✅ CHECKPOINT GIORNO 3 FINALE: Business LIVE e operativo! 🚀</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIORNI 4-7: PRIMA SETTIMANA OPERATIVA -->
+    <div class="day-section" id="week1">
+        <div class="day-header">
+            <h2>📅 GIORNI 4-7 - PRIMA SETTIMANA OPERATIVA</h2>
+            <div class="duration">⏱️ 1h/giorno | Lunedì-Domenica</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>🎯 ROUTINE GIORNALIERA (1 ora)</h3>
+                <span class="session-time">Da ripetere ogni giorno</span>
+            </div>
+            
+            <div class="tasks">
+                <!-- Task W1.1 -->
+                <div class="task" data-task-id="w1.1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            Mattina (30min) - Check Metriche & Ordini
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <div class="task-code">CHECKLIST MATTUTINA:
+
+1. FACEBOOK ADS (10min):
+   □ Spesa totale ieri
+   □ ROAS (target: >2x)
+   □ CPA (target: <€15)
+   □ CTR (target: >1%)
+   
+2. SHOPIFY (10min):
+   □ Ordini nuovi → Processa subito
+   □ Revenue giornaliero
+   □ Conversion rate (target: >2%)
+   
+3. EMAIL/CHAT (10min):
+   □ Rispondi clienti entro 2h
+   □ Check carrelli abbandonati</div>
+                        <div class="task-warning">⚠️ Se ROAS <1.5x per 2 giorni consecutivi → PAUSA ads e analizza problema</div>
+                    </div>
+                </div>
+                
+                <!-- Task W1.2 -->
+                <div class="task" data-task-id="w1.2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            Sera (30min) - Ottimizzazione & Contenuti
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Ads Optimization (15min):</strong> Disattiva ads con CTR <0.8% dopo 3 giorni</li>
+                            <li><strong>Nuovi Contenuti (15min):</strong> Crea 1 storia Instagram o post Facebook</li>
+                            <li><strong>Update Dashboard:</strong> Inserisci dati giornalieri in Google Sheet</li>
+                        </ol>
+                        <div class="task-tip">💡 FOCUS settimana 1: IMPARARE. Non aspettarti profitti, osserva cosa funziona.</div>
+                    </div>
+                </div>
+                
+                <!-- Task W1.3 -->
+                <div class="task" data-task-id="w1.3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            Azioni Specifiche per Giorno Settimana
+                        </div>
+                        <div class="task-code">LUNEDÌ: Analizza weekend (picco vendite?)
+MARTEDÌ: Test nuovo copy ads
+MERCOLEDÌ: Controlla campioni arrivati
+GIOVEDÌ: Aumenta budget +€5 se ROAS >2.5x
+VENERDÌ: Prepara contenuti weekend
+SABATO: Risposta clienti veloce (picco ordini)
+DOMENICA: Review settimanale completa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIANO SETTIMANALE RICORRENTE -->
+    <div class="day-section" id="weekly-routine">
+        <div class="day-header">
+            <h2>📅 PIANO SETTIMANALE RICORRENTE</h2>
+            <div class="duration">⏱️ 7h/settimana | Dalla settimana 2 in poi</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>📊 DISTRIBUZIONE SETTIMANALE</h3>
+            </div>
+            
+            <div class="tasks">
+                <!-- Lunedì -->
+                <div class="task" data-task-id="mon">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            LUNEDÌ - Analisi & Planning (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Review Weekend (20min):</strong> Analizza dati Sab-Dom (solitamente picco)</li>
+                            <li><strong>Setup Settimana (20min):</strong> Definisci obiettivo vendite/revenue</li>
+                            <li><strong>Creative Planning (20min):</strong> Pianifica 2 nuove foto/video da creare</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Martedì -->
+                <div class="task" data-task-id="tue">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MARTEDÌ - Contenuti & Test (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Nuove Creative (40min):</strong> Crea 2 nuove foto/video con Canva/CapCut</li>
+                            <li><strong>Test Ads (20min):</strong> Lancia A/B test con nuove creative</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Mercoledì -->
+                <div class="task" data-task-id="wed">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MERCOLEDÌ - Customer Care (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Email Proattive (30min):</strong> Contatta clienti ordini 7-10gg fa: "Arrivato?"</li>
+                            <li><strong>Review Request (30min):</strong> Chiedi recensioni a clienti soddisfatti</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Giovedì -->
+                <div class="task" data-task-id="thu">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            GIOVEDÌ - Ottimizzazione Ads (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Kill Losers (20min):</strong> Disattiva ads con ROAS <1.5x dopo 5 giorni</li>
+                            <li><strong>Scale Winners (20min):</strong> Aumenta budget +20% su ads con ROAS >3x</li>
+                            <li><strong>Nuovi Targeting (20min):</strong> Testa 1 nuovo interesse audience</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Venerdì -->
+                <div class="task" data-task-id="fri">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            VENERDÌ - Fornitori & Operatività (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Check Ordini (30min):</strong> Verifica tutti i tracking aggiornati</li>
+                            <li><strong>Riordino Stock (30min):</strong> Se prodotto vende >10/settimana → ordina semi-stock (20 pz)</li>
+                        </ol>
+                        <div class="task-tip">💡 Semi-stock riduce tempi spedizione da 15gg a 3-5gg = clienti felici!</div>
+                    </div>
+                </div>
+                
+                <!-- Weekend -->
+                <div class="task" data-task-id="weekend">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            WEEKEND - Monitoring & Support (2h totali)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Sabato (1h):</strong> Risposta clienti (picco richieste), processa ordini</li>
+                            <li><strong>Domenica (1h):</strong> Controllo ads running, review settimanale</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MILESTONES & TRIGGER ACTIONS -->
+    <div class="day-section" id="milestones">
+        <div class="day-header">
+            <h2>🎯 MILESTONES & AZIONI TRIGGER</h2>
+            <div class="duration">⏱️ Obiettivi progressivi</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>📈 QUANDO RAGGIUNGI...</h3>
+            </div>
+            
+            <div class="tasks">
+                <!-- Milestone 1 -->
+                <div class="task" data-task-id="m1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 1: Prima Vendita! 🎉
+                        </div>
+                        <div class="task-code">AZIONI IMMEDIATE:
+1. Screenshot ordine (celebrate!)
+2. Processa ordine in <2h
+3. Email personale cliente: "Grazie [Nome]!"
+4. Post Instagram Stories: "Prima vendita!"
+5. Analizza: quale ads ha convertito?</div>
+                        <div class="task-success">✅ Hai validato il prodotto. Ora scala!</div>
+                    </div>
+                </div>
+                
+                <!-- Milestone 2 -->
+                <div class="task" data-task-id="m2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 2: €500 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Aumenta budget ads a €25/giorno</li>
+                            <li>Ordina semi-stock prodotti top (50 pezzi)</li>
+                            <li>Crea campagna Retargeting (visitatori no-buy)</li>
+                            <li>Installa Google Ads (Search: "lampada luna")</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Milestone 3 -->
+                <div class="task" data-task-id="m3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 3: €2000 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Budget ads €50/giorno</li>
+                            <li>Assumi VA part-time per customer service (€300/mese)</li>
+                            <li>Espandi catalogo: +3 nuovi prodotti</li>
+                            <li>Test TikTok Ads (€10/giorno)</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Milestone 4 -->
+                <div class="task" data-task-id="m4">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 4: €5000 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Passa a 100% semi-stock (magazzino proprio o 3PL)</li>
+                            <li>Budget ads €100+/giorno</li>
+                            <li>Espansione EU: Germania, Francia, Spagna</li>
+                            <li>Considera influencer marketing (micro: 10-50k followers)</li>
+                        </ol>
+                        <div class="task-success">🚀 A questo punto hai un business scalabile!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Funzioni per gestire il progresso dei task
+
+function switchDay(dayId) {
+    try {
+        const allSections = document.querySelectorAll('.day-section');
+        
+        if (dayId === 'all') {
+            // Mostra tutto
+            allSections.forEach(section => {
+                section.classList.remove('hidden');
+            });
+        } else {
+            // Nascondi tutto e mostra solo quello selezionato
+            allSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            const selectedSection = document.getElementById(dayId);
+            if (selectedSection) {
+                selectedSection.classList.remove('hidden');
+                // Scroll to top of section
+                selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        // Salva la selezione in localStorage
+        localStorage.setItem('blumpy_selected_day', dayId);
+    } catch (error) {
+        // console.error('Errore nel cambio giorno:', error);
+    }
+}
+
+function toggleTask(checkbox) {
+    try {
+        const taskElement = checkbox.closest('.task');
+        const taskId = taskElement.getAttribute('data-task-id');
+        
+        if (!taskId) {
+            // console.error('Task ID non trovato!');
+            return;
+        }
+        
+        // Toggle visual state
+        checkbox.classList.toggle('checked');
+        taskElement.classList.toggle('completed');
+        
+        // Save state to localStorage
+        const completedTasks = getCompletedTasks();
+        const isCompleted = checkbox.classList.contains('checked');
+        
+        if (isCompleted) {
+            if (!completedTasks.includes(taskId)) {
+                completedTasks.push(taskId);
+            }
+        } else {
+            const index = completedTasks.indexOf(taskId);
+            if (index > -1) {
+                completedTasks.splice(index, 1);
+            }
+        }
+        
+        // SALVATAGGIO AUTOMATICO
+        localStorage.setItem('blumpy_completed_tasks', JSON.stringify(completedTasks));
+        
+        // Debug: verifica salvataggio
+        const saved = localStorage.getItem('blumpy_completed_tasks');
+        
+        // Aggiorna progresso
+        updateProgress();
+        
+        // Feedback visivo temporaneo
+        showSaveConfirmation();
+        
+    } catch (error) {
+        // console.error('Errore nel toggle del task:', error);
+        alert('Si è verificato un errore nel salvataggio. Ricarica la pagina e riprova.');
+    }
+}
+
+function showSaveConfirmation() {
+    // Mostra brevemente un indicatore di salvataggio
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        progressBar.style.borderColor = '#4CAF50';
+        setTimeout(() => {
+            progressBar.style.borderColor = '#F5C89B';
+        }, 300);
+    }
+}
+
+function getCompletedTasks() {
+    try {
+        const saved = localStorage.getItem('blumpy_completed_tasks');
+        return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+        // console.error('Errore nel recupero dei task:', error);
+        return [];
+    }
+}
+
+function updateProgress() {
+    try {
+        const allTasks = document.querySelectorAll('.task');
+        const completedTasks = getCompletedTasks();
+        const total = allTasks.length;
+        const completed = completedTasks.length;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        // Update progress bar
+        const progressFill = document.getElementById('progressFill');
+        if (progressFill) {
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = percentage + '%';
+        }
+        
+        // Update task counter
+        const taskCounter = document.getElementById('taskCounter');
+        if (taskCounter) {
+            taskCounter.textContent = `${completed}/${total} task`;
+        }
+        
+        // Update stats
+        const totalTasksElement = document.getElementById('totalTasks');
+        const completedTasksElement = document.getElementById('completedTasks');
+        if (totalTasksElement) totalTasksElement.textContent = total;
+        if (completedTasksElement) completedTasksElement.textContent = completed;
+    } catch (error) {
+        // console.error('Errore nell\'aggiornamento del progresso:', error);
+    }
+}
+
+function saveProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        const blob = new Blob([JSON.stringify(completedTasks, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'blumpy_progress_' + new Date().toISOString().split('T')[0] + '.json';
+        link.click();
+        URL.revokeObjectURL(url);
+        alert(`✅ Progresso salvato! ${completedTasks.length} task completati.`);
+    } catch (error) {
+        // console.error('Errore nel salvataggio:', error);
+        alert('Errore nel salvataggio. Verifica le impostazioni del browser.');
+    }
+}
+
+function loadProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        
+        // Reset all tasks first (anche nelle sezioni nascoste)
+        document.querySelectorAll('.task').forEach(task => {
+            const checkbox = task.querySelector('.task-checkbox');
+            if (checkbox) {
+                checkbox.classList.remove('checked');
+                task.classList.remove('completed');
+            }
+        });
+        
+        // Apply saved state (anche nelle sezioni nascoste)
+        completedTasks.forEach(taskId => {
+            const task = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (task) {
+                const checkbox = task.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.classList.add('checked');
+                    task.classList.add('completed');
+                }
+            }
+        });
+        
+        updateProgress();
+        
+        if (completedTasks.length > 0) {
+        }
+    } catch (error) {
+        // console.error('Errore nel caricamento:', error);
+    }
+}
+
+function resetProgress() {
+    if (confirm('⚠️ Sei sicuro di voler resettare tutto il progresso? Questa azione non può essere annullata.')) {
+        try {
+            localStorage.removeItem('blumpy_completed_tasks');
+            
+            // Reset visual state
+            document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.classList.remove('checked');
+                checkbox.closest('.task').classList.remove('completed');
+            });
+            
+            updateProgress();
+            alert('✅ Progresso resettato!');
+        } catch (error) {
+            // console.error('Errore nel reset:', error);
+            alert('Errore nel reset del progresso.');
+        }
+    }
+}
+
+function exportProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        const allTasks = document.querySelectorAll('.task');
+        const total = allTasks.length;
+        const percentage = total > 0 ? Math.round((completedTasks.length / total) * 100) : 0;
+        
+        // Crea report CSV
+        let csv = 'Task ID,Titolo,Stato,Data Completamento\n';
+        
+        allTasks.forEach(task => {
+            const taskId = task.getAttribute('data-task-id');
+            const title = task.querySelector('.task-title')?.textContent.trim().split('\n')[0] || '';
+            const isCompleted = completedTasks.includes(taskId);
+            const status = isCompleted ? 'Completato' : 'Da fare';
+            const date = isCompleted ? new Date().toLocaleDateString('it-IT') : '';
+            
+            csv += `"${taskId}","${title.replace(/"/g, '""')}","${status}","${date}"\n`;
+        });
+        
+        // Download CSV
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'blumpy_report_' + new Date().toISOString().split('T')[0] + '.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        alert(`✅ Report esportato!\n\nTotale task: ${total}\nCompletati: ${completedTasks.length}\nProgresso: ${percentage}%`);
+    } catch (error) {
+        // console.error('Errore nell\'export:', error);
+        alert('Errore nell\'esportazione dei dati.');
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadProgress();
+    
+    // Ripristina la selezione del giorno salvata
+    const savedDay = localStorage.getItem('blumpy_selected_day');
+    if (savedDay) {
+        const selector = document.getElementById('daySelector');
+        if (selector) {
+            selector.value = savedDay;
+            switchDay(savedDay);
+        }
+    } else {
+        // Default: mostra solo Giorno 1
+        switchDay('day1');
+    }
+    
+    // Verifica localStorage disponibile
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+    } catch (e) {
+        // console.error('❌ LocalStorage NON disponibile:', e);
+        alert('⚠️ Attenzione: il salvataggio automatico potrebbe non funzionare. Verifica le impostazioni del browser.');
+    }
+    
+    // Mostra riepilogo progressi salvati
+    const completed = getCompletedTasks();
+    if (completed.length > 0) {
+    }
+});
+</script>
+
+</body>
+</html>
+
+    <!-- GIORNI 4-7: PRIMA SETTIMANA OPERATIVA -->
+    <div class="day-section" id="week1">
+        <div class="day-header">
+            <h2>📅 GIORNI 4-7 - PRIMA SETTIMANA OPERATIVA</h2>
+            <div class="duration">⏱️ 1h/giorno | Lunedì-Domenica</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>🎯 ROUTINE GIORNALIERA (1 ora)</h3>
+                <span class="session-time">Da ripetere ogni giorno</span>
+            </div>
+            
+            <div class="tasks">
+                <div class="task" data-task-id="w1.1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            Mattina (30min) - Check Metriche & Ordini
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <div class="task-code">CHECKLIST MATTUTINA:
+
+1. FACEBOOK ADS (10min):
+   □ Spesa totale ieri
+   □ ROAS (target: >2x)
+   □ CPA (target: <€15)
+   □ CTR (target: >1%)
+   
+2. SHOPIFY (10min):
+   □ Ordini nuovi → Processa subito
+   □ Revenue giornaliero
+   □ Conversion rate (target: >2%)
+   
+3. EMAIL/CHAT (10min):
+   □ Rispondi clienti entro 2h
+   □ Check carrelli abbandonati</div>
+                        <div class="task-warning">⚠️ Se ROAS <1.5x per 2 giorni consecutivi → PAUSA ads e analizza problema</div>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="w1.2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            Sera (30min) - Ottimizzazione & Contenuti
+                            <span class="task-duration">⏱️ 30 min</span>
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Ads Optimization (15min):</strong> Disattiva ads con CTR <0.8% dopo 3 giorni</li>
+                            <li><strong>Nuovi Contenuti (15min):</strong> Crea 1 storia Instagram o post Facebook</li>
+                            <li><strong>Update Dashboard:</strong> Inserisci dati giornalieri in Google Sheet</li>
+                        </ol>
+                        <div class="task-tip">💡 FOCUS settimana 1: IMPARARE. Non aspettarti profitti, osserva cosa funziona.</div>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="w1.3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">Azioni Specifiche per Giorno Settimana</div>
+                        <div class="task-code">LUNEDÌ: Analizza weekend (picco vendite?)
+MARTEDÌ: Test nuovo copy ads
+MERCOLEDÌ: Controlla campioni arrivati
+GIOVEDÌ: Aumenta budget +€5 se ROAS >2.5x
+VENERDÌ: Prepara contenuti weekend
+SABATO: Risposta clienti veloce (picco ordini)
+DOMENICA: Review settimanale completa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIANO SETTIMANALE RICORRENTE -->
+    <div class="day-section" id="weekly-routine">
+        <div class="day-header">
+            <h2>📅 PIANO SETTIMANALE RICORRENTE</h2>
+            <div class="duration">⏱️ 7h/settimana | Dalla settimana 2 in poi</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>📊 DISTRIBUZIONE SETTIMANALE</h3>
+            </div>
+            
+            <div class="tasks">
+                <div class="task" data-task-id="mon">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            LUNEDÌ - Analisi & Planning (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Review Weekend (20min):</strong> Analizza dati Sab-Dom (solitamente picco)</li>
+                            <li><strong>Setup Settimana (20min):</strong> Definisci obiettivo vendite/revenue</li>
+                            <li><strong>Creative Planning (20min):</strong> Pianifica 2 nuove foto/video da creare</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="tue">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MARTEDÌ - Contenuti & Test (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Nuove Creative (40min):</strong> Crea 2 nuove foto/video con Canva/CapCut</li>
+                            <li><strong>Test Ads (20min):</strong> Lancia A/B test con nuove creative</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="wed">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MERCOLEDÌ - Customer Care (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Email Proattive (30min):</strong> Contatta clienti ordini 7-10gg fa: "Arrivato?"</li>
+                            <li><strong>Review Request (30min):</strong> Chiedi recensioni a clienti soddisfatti</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="thu">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            GIOVEDÌ - Ottimizzazione Ads (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Kill Losers (20min):</strong> Disattiva ads con ROAS <1.5x dopo 5 giorni</li>
+                            <li><strong>Scale Winners (20min):</strong> Aumenta budget +20% su ads con ROAS >3x</li>
+                            <li><strong>Nuovi Targeting (20min):</strong> Testa 1 nuovo interesse audience</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="fri">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            VENERDÌ - Fornitori & Operatività (1h)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Check Ordini (30min):</strong> Verifica tutti i tracking aggiornati</li>
+                            <li><strong>Riordino Stock (30min):</strong> Se prodotto vende >10/settimana → ordina semi-stock (20 pz)</li>
+                        </ol>
+                        <div class="task-tip">💡 Semi-stock riduce tempi spedizione da 15gg a 3-5gg = clienti felici!</div>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="weekend">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            WEEKEND - Monitoring & Support (2h totali)
+                        </div>
+                        <ol class="task-steps">
+                            <li><strong>Sabato (1h):</strong> Risposta clienti (picco richieste), processa ordini</li>
+                            <li><strong>Domenica (1h):</strong> Controllo ads running, review settimanale</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MILESTONES & TRIGGER ACTIONS -->
+    <div class="day-section" id="milestones">
+        <div class="day-header">
+            <h2>🎯 MILESTONES & AZIONI TRIGGER</h2>
+            <div class="duration">⏱️ Obiettivi progressivi</div>
+        </div>
+        
+        <div class="session">
+            <div class="session-header">
+                <h3>📈 QUANDO RAGGIUNGI...</h3>
+            </div>
+            
+            <div class="tasks">
+                <div class="task" data-task-id="m1">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 1: Prima Vendita! 🎉
+                        </div>
+                        <div class="task-code">AZIONI IMMEDIATE:
+1. Screenshot ordine (celebrate!)
+2. Processa ordine in <2h
+3. Email personale cliente: "Grazie [Nome]!"
+4. Post Instagram Stories: "Prima vendita!"
+5. Analizza: quale ads ha convertito?</div>
+                        <div class="task-success">✅ Hai validato il prodotto. Ora scala!</div>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="m2">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 2: €500 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Aumenta budget ads a €25/giorno</li>
+                            <li>Ordina semi-stock prodotti top (50 pezzi)</li>
+                            <li>Crea campagna Retargeting (visitatori no-buy)</li>
+                            <li>Installa Google Ads (Search: "lampada luna")</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="m3">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 3: €2000 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Budget ads €50/giorno</li>
+                            <li>Assumi VA part-time per customer service (€300/mese)</li>
+                            <li>Espandi catalogo: +3 nuovi prodotti</li>
+                            <li>Test TikTok Ads (€10/giorno)</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="task" data-task-id="m4">
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            MILESTONE 4: €5000 Revenue
+                        </div>
+                        <ol class="task-steps">
+                            <li>Passa a 100% semi-stock (magazzino proprio o 3PL)</li>
+                            <li>Budget ads €100+/giorno</li>
+                            <li>Espansione EU: Germania, Francia, Spagna</li>
+                            <li>Considera influencer marketing (micro: 10-50k followers)</li>
+                        </ol>
+                        <div class="task-success">🚀 A questo punto hai un business scalabile!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Funzioni per gestire il progresso dei task
+
+function switchDay(dayId) {
+    try {
+        const allSections = document.querySelectorAll('.day-section');
+        
+        if (dayId === 'all') {
+            allSections.forEach(section => {
+                section.classList.remove('hidden');
+            });
+        } else {
+            allSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            const selectedSection = document.getElementById(dayId);
+            if (selectedSection) {
+                selectedSection.classList.remove('hidden');
+                selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        localStorage.setItem('blumpy_selected_day', dayId);
+    } catch (error) {
+        // Silenzioso
+    }
+}
+
+function toggleTask(checkbox) {
+    try {
+        const taskElement = checkbox.closest('.task');
+        const taskId = taskElement.getAttribute('data-task-id');
+        
+        if (!taskId) {
+            return;
+        }
+        
+        checkbox.classList.toggle('checked');
+        taskElement.classList.toggle('completed');
+        
+        const completedTasks = getCompletedTasks();
+        const isCompleted = checkbox.classList.contains('checked');
+        
+        if (isCompleted) {
+            if (!completedTasks.includes(taskId)) {
+                completedTasks.push(taskId);
+            }
+        } else {
+            const index = completedTasks.indexOf(taskId);
+            if (index > -1) {
+                completedTasks.splice(index, 1);
+            }
+        }
+        
+        localStorage.setItem('blumpy_completed_tasks', JSON.stringify(completedTasks));
+        updateProgress();
+        showSaveConfirmation();
+        
+    } catch (error) {
+        alert('Si è verificato un errore nel salvataggio. Ricarica la pagina e riprova.');
+    }
+}
+
+function showSaveConfirmation() {
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        progressBar.style.borderColor = '#4CAF50';
+        setTimeout(() => {
+            progressBar.style.borderColor = '#F5C89B';
+        }, 300);
+    }
+}
+
+function getCompletedTasks() {
+    try {
+        const saved = localStorage.getItem('blumpy_completed_tasks');
+        return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function updateProgress() {
+    try {
+        const allTasks = document.querySelectorAll('.task');
+        const completedTasks = getCompletedTasks();
+        const total = allTasks.length;
+        const completed = completedTasks.length;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        const progressFill = document.getElementById('progressFill');
+        if (progressFill) {
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = percentage + '%';
+        }
+        
+        const taskCounter = document.getElementById('taskCounter');
+        if (taskCounter) {
+            taskCounter.textContent = `${completed}/${total} task`;
+        }
+        
+        const totalTasksElement = document.getElementById('totalTasks');
+        const completedTasksElement = document.getElementById('completedTasks');
+        if (totalTasksElement) totalTasksElement.textContent = total;
+        if (completedTasksElement) completedTasksElement.textContent = completed;
+    } catch (error) {
+        // Silenzioso
+    }
+}
+
+function saveProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        const blob = new Blob([JSON.stringify(completedTasks, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'blumpy_progress_' + new Date().toISOString().split('T')[0] + '.json';
+        link.click();
+        URL.revokeObjectURL(url);
+        alert(`✅ Progresso salvato! ${completedTasks.length} task completati.`);
+    } catch (error) {
+        alert('Errore nel salvataggio.');
+    }
+}
+
+function loadProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        
+        document.querySelectorAll('.task').forEach(task => {
+            const checkbox = task.querySelector('.task-checkbox');
+            if (checkbox) {
+                checkbox.classList.remove('checked');
+                task.classList.remove('completed');
+            }
+        });
+        
+        completedTasks.forEach(taskId => {
+            const task = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (task) {
+                const checkbox = task.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.classList.add('checked');
+                    task.classList.add('completed');
+                }
+            }
+        });
+        
+        updateProgress();
+    } catch (error) {
+        // Silenzioso
+    }
+}
+
+function resetProgress() {
+    if (confirm('⚠️ Sei sicuro di voler resettare tutto il progresso? Questa azione non può essere annullata.')) {
+        try {
+            localStorage.removeItem('blumpy_completed_tasks');
+            
+            document.querySelectorAll('.task').forEach(task => {
+                const checkbox = task.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.classList.remove('checked');
+                    task.classList.remove('completed');
+                }
+            });
+            
+            updateProgress();
+            alert('✅ Progresso resettato!');
+        } catch (error) {
+            alert('Errore nel reset del progresso.');
+        }
+    }
+}
+
+function exportProgress() {
+    try {
+        const completedTasks = getCompletedTasks();
+        const allTasks = document.querySelectorAll('.task');
+        const total = allTasks.length;
+        const percentage = total > 0 ? Math.round((completedTasks.length / total) * 100) : 0;
+        
+        let csv = 'Task ID,Titolo,Stato,Data Completamento\n';
+        
+        allTasks.forEach(task => {
+            const taskId = task.getAttribute('data-task-id');
+            const title = task.querySelector('.task-title')?.textContent.trim().split('\n')[0] || '';
+            const isCompleted = completedTasks.includes(taskId);
+            const status = isCompleted ? 'Completato' : 'Da fare';
+            const date = isCompleted ? new Date().toLocaleDateString('it-IT') : '';
+            
+            csv += `"${taskId}","${title.replace(/"/g, '""')}","${status}","${date}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'blumpy_report_' + new Date().toISOString().split('T')[0] + '.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        alert(`✅ Report esportato!\n\nTotale task: ${total}\nCompletati: ${completedTasks.length}\nProgresso: ${percentage}%`);
+    } catch (error) {
+        alert('Errore nell\'esportazione dei dati.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadProgress();
+    
+    const savedDay = localStorage.getItem('blumpy_selected_day');
+    if (savedDay) {
+        const selector = document.getElementById('daySelector');
+        if (selector) {
+            selector.value = savedDay;
+            switchDay(savedDay);
+        }
+    } else {
+        switchDay('day1');
+    }
+    
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+    } catch (e) {
+        alert('⚠️ Attenzione: il salvataggio automatico potrebbe non funzionare. Verifica di non essere in modalità Incognito.');
+    }
+});
+</script>
+
+</body>
+</html>
